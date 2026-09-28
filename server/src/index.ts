@@ -116,16 +116,28 @@ async function start() {
       console.log('✓ Gemini API key configured');
     }
 
-    app.listen(PORT, '0.0.0.0', () => {
-      console.log(`\n🩺 Virtual Scribe Assistant API`);
-      console.log(`   Running on http://0.0.0.0:${PORT} (Accessible via Network IP)`);
-      console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
-      console.log(`   CORS Origin: ${isProduction ? rawOrigin : 'ALL (development mode)'}\n`);
-    });
+    if (process.env.VERCEL !== '1') {
+      app.listen(PORT, '0.0.0.0', () => {
+        console.log(`\n🩺 Virtual Scribe Assistant API`);
+        console.log(`   Running on http://0.0.0.0:${PORT} (Accessible via Network IP)`);
+        console.log(`   Environment: ${process.env.NODE_ENV || 'development'}`);
+        console.log(`   CORS Origin: ${isProduction ? rawOrigin : 'ALL (development mode)'}\n`);
+      });
+    }
   } catch (error) {
     console.error('Failed to start server:', error);
-    process.exit(1);
+    if (process.env.VERCEL !== '1') {
+      process.exit(1);
+    }
   }
 }
 
-start();
+if (process.env.VERCEL !== '1') {
+  start();
+} else {
+  // In Vercel serverless environment, initialize connections
+  initSupabase().catch((e) => console.warn('Supabase init in serverless:', e.message));
+}
+
+export { app };
+export default app;
