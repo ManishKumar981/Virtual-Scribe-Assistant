@@ -1,0 +1,159 @@
+// ============================================
+// AURA - Advanced Clinical Summary Card Component
+// Renders rich, structured medical consultation reports
+// ============================================
+
+import React from 'react';
+
+interface SummaryCardProps {
+  summaryText: string;
+  clinicalImpression: string | null;
+  triageLevel: 'routine' | 'urgent' | 'emergency';
+  startedAt: string;
+  completedAt: string | null;
+}
+
+/**
+ * Parses and renders numbered clinical sections with rich visual styling
+ */
+function renderClinicalSections(text: string) {
+  if (!text) return null;
+
+  // Match numbered headers like "1. HISTORY OF PRESENT ILLNESS (HPI):"
+  const sectionRegex = /(\d\.\s+[A-Z\s&()\-\/]+:)/g;
+  const parts = text.split(sectionRegex);
+
+  if (parts.length <= 1) {
+    return <p style={{ whiteSpace: 'pre-line', lineHeight: '1.65' }}>{text}</p>;
+  }
+
+  const sections: { title: string; content: string }[] = [];
+  for (let i = 1; i < parts.length; i += 2) {
+    sections.push({
+      title: parts[i].trim(),
+      content: (parts[i + 1] || '').trim(),
+    });
+  }
+
+  const sectionIcons: Record<string, string> = {
+    '1.': '📋',
+    '2.': '🔍',
+    '3.': '💊',
+    '4.': '🩺',
+    '5.': '⚠️',
+    '6.': '⏳',
+  };
+
+  return (
+    <div style={{ display: 'flex', flexDirection: 'column', gap: '16px', marginTop: '12px' }}>
+      {sections.map((sec, idx) => {
+        const numKey = sec.title.split('.')[0] + '.';
+        const icon = sectionIcons[numKey] || '📌';
+        const isWarning = sec.title.includes('WARNING') || sec.title.includes('RED FLAGS');
+
+        return (
+          <div
+            key={idx}
+            style={{
+              background: isWarning ? 'rgba(239, 68, 68, 0.08)' : 'rgba(255, 255, 255, 0.03)',
+              border: isWarning ? '1px solid rgba(239, 68, 68, 0.3)' : '1px solid rgba(255, 255, 255, 0.08)',
+              borderRadius: '10px',
+              padding: '14px 18px',
+            }}
+          >
+            <h5
+              style={{
+                color: isWarning ? '#fca5a5' : '#60a5fa',
+                fontSize: '0.95rem',
+                fontWeight: 600,
+                marginBottom: '8px',
+                display: 'flex',
+                alignItems: 'center',
+                gap: '8px',
+                margin: 0,
+              }}
+            >
+              <span>{icon}</span>
+              <span>{sec.title}</span>
+            </h5>
+            <div
+              style={{
+                color: '#e2e8f0',
+                fontSize: '0.92rem',
+                lineHeight: '1.65',
+                whiteSpace: 'pre-line',
+                marginTop: '8px',
+              }}
+            >
+              {sec.content}
+            </div>
+          </div>
+        );
+      })}
+    </div>
+  );
+}
+
+export function SummaryCard({
+  summaryText,
+  clinicalImpression,
+  triageLevel,
+  startedAt,
+  completedAt,
+}: SummaryCardProps) {
+  const triageColors: Record<string, string> = {
+    routine: 'triage-routine',
+    urgent: 'triage-urgent',
+    emergency: 'triage-emergency',
+  };
+
+  return (
+    <div className="summary-card">
+      <div className="summary-header">
+        <h3>
+          <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+            <path d="M14 2H6a2 2 0 0 0-2 2v16a2 2 0 0 0 2 2h12a2 2 0 0 0 2-2V8z" />
+            <polyline points="14 2 14 8 20 8" />
+            <line x1="16" y1="13" x2="8" y2="13" />
+            <line x1="16" y1="17" x2="8" y2="17" />
+          </svg>
+          Advanced Clinical Consultation & Solution Report
+        </h3>
+        <span className={`triage-badge ${triageColors[triageLevel]}`}>
+          {triageLevel.toUpperCase()}
+        </span>
+      </div>
+
+      <div className="summary-meta">
+        <span>
+          Started: {new Date(startedAt).toLocaleDateString()} at{' '}
+          {new Date(startedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+        </span>
+        {completedAt && (
+          <span>
+            Completed: {new Date(completedAt).toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' })}
+          </span>
+        )}
+      </div>
+
+      <div className="summary-body">
+        <h4 style={{ color: 'var(--primary-400)', marginBottom: '8px', fontSize: '1rem', fontWeight: 600 }}>
+          Clinical Evaluation & Action Plan
+        </h4>
+        {renderClinicalSections(summaryText)}
+      </div>
+
+      {clinicalImpression && (
+        <div className="clinical-impression" style={{ marginTop: '20px' }}>
+          <h4 style={{ color: 'var(--accent-400)', fontSize: '1rem', fontWeight: 600, marginBottom: '8px' }}>
+            Doctor Specialist, Diagnostics & Safety Guidance
+          </h4>
+          {renderClinicalSections(clinicalImpression)}
+          <small className="disclaimer" style={{ marginTop: '16px', display: 'block' }}>
+            <strong>Medical Disclaimer:</strong> This report is generated by Virtual Scribe Assistant based on reported symptoms and health information. It is intended for informative guidance and doctor reference. Always consult a licensed medical professional for prescription medication and clinical diagnosis.
+          </small>
+        </div>
+      )}
+    </div>
+  );
+}
