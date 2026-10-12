@@ -361,8 +361,8 @@ export function ChatWindow({ onComplete }: ChatWindowProps) {
             </div>
             <ul className="guidelines-list">
               <li>Speak clearly into your device's microphone.</li>
-              <li>You can switch between **English**, **Telugu**, or **Hindi** anytime.</li>
-              <li>When you're done, tap **End & Generate Report** to view your clinical summary.</li>
+              <li>You can switch between <strong>English</strong>, <strong>Telugu</strong>, or <strong>Hindi</strong> anytime.</li>
+              <li>When you're done, tap <strong>End &amp; Generate Report</strong> to view your clinical summary.</li>
             </ul>
           </div>
         </div>
