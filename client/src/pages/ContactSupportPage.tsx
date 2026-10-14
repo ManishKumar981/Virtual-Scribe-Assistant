@@ -1,6 +1,6 @@
 // ============================================
 // AURA - Contact & Emergency Support Page
-// 1-Tap Emergency Hotlines, Caregiver Alerts, and 24/7 Health Support
+// 1-Tap Emergency Hotlines and Caregiver Alerts
 // ============================================
 
 import React, { useState, useEffect, useCallback } from 'react';
@@ -15,11 +15,6 @@ export function ContactSupportPage({ onBack }: ContactSupportPageProps) {
   const [savedSuccess, setSavedSuccess] = useState(false);
   const [isLocating, setIsLocating] = useState(false);
 
-  const [inquiryName, setInquiryName] = useState('');
-  const [inquiryEmail, setInquiryEmail] = useState('');
-  const [inquiryMessage, setInquiryMessage] = useState('');
-  const [formSubmitted, setFormSubmitted] = useState(false);
-
   useEffect(() => {
     const savedName = localStorage.getItem('aura_caregiver_name') || '';
     const savedPhone = localStorage.getItem('aura_caregiver_phone') || '';
@@ -28,7 +23,7 @@ export function ContactSupportPage({ onBack }: ContactSupportPageProps) {
   }, []);
 
   /**
-   * Open WhatsApp with automatic Emergency SOS message and live GPS Location
+   * Open WhatsApp with a prefilled Emergency SOS message and the current GPS location
    */
   const handleWhatsApp = useCallback((phoneNumber: string) => {
     setIsLocating(true);
@@ -49,12 +44,12 @@ export function ContactSupportPage({ onBack }: ContactSupportPageProps) {
         `*Status:* ⚠️ I need urgent medical attention! Please call or reach me immediately.\n\n`;
 
       if (locationUrl) {
-        emergencyMsg += `📍 *Live Location (Google Maps):*\n${locationUrl}\n\n`;
+        emergencyMsg += `📍 *Location (Google Maps):*\n${locationUrl}\n\n`;
       } else {
         emergencyMsg += `📍 *Location:* Location access unavailable or disabled on device.\n\n`;
       }
 
-      emergencyMsg += `_Sent automatically via Virtual Scribe Assistant Emergency System_`;
+      emergencyMsg += `_Sent via Virtual Scribe Assistant Emergency System_`;
 
       const encoded = encodeURIComponent(emergencyMsg);
       window.open(`https://wa.me/${waNumber}?text=${encoded}`, '_blank');
@@ -86,14 +81,6 @@ export function ContactSupportPage({ onBack }: ContactSupportPageProps) {
     localStorage.setItem('aura_caregiver_phone', caregiverPhone.trim());
     setSavedSuccess(true);
     setTimeout(() => setSavedSuccess(false), 3000);
-  };
-
-  const handleSendInquiry = (e: React.FormEvent) => {
-    e.preventDefault();
-    if (!inquiryMessage.trim()) return;
-    setFormSubmitted(true);
-    setInquiryMessage('');
-    setTimeout(() => setFormSubmitted(false), 4000);
   };
 
   return (
@@ -154,9 +141,8 @@ export function ContactSupportPage({ onBack }: ContactSupportPageProps) {
         </div>
       </div>
 
-      {/* Two Column Section: Caregiver Alert + Support Contact Form */}
+      {/* Caregiver Alert Setup */}
       <div className="support-body-grid">
-        {/* Left Card: Caregiver Contact Setup */}
         <div className="support-card caregiver-card">
           <div className="card-title-bar">
             <span>👨‍👩‍👧</span>
@@ -216,60 +202,6 @@ export function ContactSupportPage({ onBack }: ContactSupportPageProps) {
               </div>
             </div>
           )}
-        </div>
-
-        {/* Right Card: Support Inquiry Form */}
-        <div className="support-card inquiry-card">
-          <div className="card-title-bar">
-            <span>💬</span>
-            <div>
-              <h3>24/7 Virtual Scribe Assistant Support</h3>
-              <p>Send a message to our support team for any queries or help</p>
-            </div>
-          </div>
-
-          <form onSubmit={handleSendInquiry} className="inquiry-form">
-            <div className="form-group">
-              <label>Your Name:</label>
-              <input
-                type="text"
-                placeholder="Enter your name"
-                value={inquiryName}
-                onChange={(e) => setInquiryName(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>Email or Phone (Optional):</label>
-              <input
-                type="text"
-                placeholder="Contact details"
-                value={inquiryEmail}
-                onChange={(e) => setInquiryEmail(e.target.value)}
-              />
-            </div>
-
-            <div className="form-group">
-              <label>How can we help you?</label>
-              <textarea
-                rows={4}
-                placeholder="Type your query, difficulty using voice, or feedback..."
-                value={inquiryMessage}
-                onChange={(e) => setInquiryMessage(e.target.value)}
-                required
-              />
-            </div>
-
-            {formSubmitted && (
-              <div className="form-success">
-                ✓ Thank you! Your support message has been sent. Our team will get back to you shortly.
-              </div>
-            )}
-
-            <button type="submit" className="btn btn-secondary btn-full">
-              ✉️ Send Support Message
-            </button>
-          </form>
         </div>
       </div>
     </div>
